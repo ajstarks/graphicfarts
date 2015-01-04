@@ -2,12 +2,7 @@ package main
 
 import (
 	"flag"
-	"image/color"
-	"image/png"
-	"math"
-	"os"
 
-	"code.google.com/p/draw2d/draw2d"
 	"github.com/codahale/graphicfarts"
 )
 
@@ -17,27 +12,15 @@ func main() {
 		space  = flag.Int("space", 50, "spacing of circles in px")
 	)
 
-	img, gc := graphicfarts.Setup(color.White)
+	canvas, rect := graphicfarts.Setup("fill:white")
 
-	gc.SetLineWidth(3)
-	gc.SetLineCap(draw2d.ButtCap)
-	gc.SetStrokeColor(color.Black)
-
-	for y := img.Rect.Min.Y; y < img.Rect.Max.Y+*radius; y += *radius + *space {
-		for x := img.Rect.Min.X; x < img.Rect.Max.X+*radius; x += *radius + *space {
-			gc.ArcTo(
-				float64(x),
-				float64(y),
-				float64(*radius),
-				float64(*radius),
-				0,
-				2*math.Pi,
-			)
-			gc.Stroke()
+	for y := rect.Min.Y; y < rect.Max.Y+*radius; y += *radius + *space {
+		for x := rect.Min.X; x < rect.Max.X+*radius; x += *radius + *space {
+			canvas.Gstyle("fill:none;stroke:black;stroke-width:3")
+			canvas.Circle(x, y, *radius)
+			canvas.Gend()
 		}
 	}
 
-	if err := png.Encode(os.Stdout, img); err != nil {
-		panic(err)
-	}
+	canvas.End()
 }

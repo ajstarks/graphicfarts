@@ -5,11 +5,10 @@ import (
 	"encoding/binary"
 	"flag"
 	"image"
-	"image/color"
-	"image/draw"
 	"math/rand"
+	"os"
 
-	"code.google.com/p/draw2d/draw2d"
+	"github.com/ajstarks/svgo"
 )
 
 var (
@@ -18,18 +17,17 @@ var (
 	seed   = flag.Int64("seed", 0, "seed for PRNG (-1 for random)")
 )
 
-func Setup(bg color.Color) (*image.RGBA, *draw2d.ImageGraphicContext) {
+func Setup(styles ...string) (*svg.SVG, image.Rectangle) {
 	flag.Parse()
 	randomize(*seed)
 
-	img := image.NewRGBA(image.Rect(0, 0, *width, *height))
-	if bg != nil {
-		draw.Draw(img, img.Rect, &image.Uniform{C: bg}, image.Pt(0, 0), draw.Over)
+	canvas := svg.New(os.Stdout)
+	canvas.Start(*width, *height)
+	if styles != nil {
+		canvas.Rect(0, 0, *width, *height, styles...)
 	}
 
-	gc := draw2d.NewGraphicContext(img)
-
-	return img, gc
+	return canvas, image.Rect(0, 0, *width, *height)
 }
 
 func randomize(i int64) {

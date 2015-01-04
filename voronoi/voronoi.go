@@ -2,12 +2,9 @@ package main
 
 import (
 	"flag"
-	"image/color"
-	"image/png"
+	"fmt"
 	"math/rand"
-	"os"
 
-	"code.google.com/p/draw2d/draw2d"
 	"github.com/codahale/graphicfarts"
 )
 
@@ -16,30 +13,28 @@ func main() {
 		nSites = flag.Int("sites", 10, "number of sites")
 	)
 
-	img, gc := graphicfarts.Setup(color.White)
-
-	gc.SetLineWidth(3)
-	gc.SetLineCap(draw2d.ButtCap)
+	canvas, rect := graphicfarts.Setup()
 
 	var sx, sy []int
-	var sc []color.Color
+	var sc []string
 	for i := 0; i < *nSites; i++ {
-		x := rand.Intn(img.Rect.Dx())
-		y := rand.Intn(img.Rect.Dy())
-		c := color.RGBA{
-			R: uint8(rand.Intn(256)),
-			G: uint8(rand.Intn(256)),
-			B: uint8(rand.Intn(256)),
-			A: uint8(rand.Intn(256)),
-		}
+		x := rand.Intn(rect.Dx())
+		y := rand.Intn(rect.Dy())
+
+		r := uint8(rand.Intn(256))
+		g := uint8(rand.Intn(256))
+		b := uint8(rand.Intn(256))
+
 		sx = append(sx, x)
 		sy = append(sy, y)
-		sc = append(sc, c)
+		sc = append(sc, fmt.Sprintf("fill:none;stroke:#%02x%02x%02x", r, g, b))
 	}
 
-	for x := 0; x < img.Rect.Dx(); x++ {
-		for y := 0; y < img.Rect.Dy(); y++ {
-			dMin := dot(img.Rect.Dx(), img.Rect.Dy())
+	// BUG(coda): holy shit this is the wrong way to do this
+
+	for x := 0; x < rect.Dx(); x++ {
+		for y := 0; y < rect.Dy(); y++ {
+			dMin := dot(rect.Dx(), rect.Dy())
 			var sMin int
 			for s := 0; s < *nSites; s++ {
 				if d := dot(sx[s]-x, sy[s]-y); d < dMin {
@@ -47,13 +42,11 @@ func main() {
 					dMin = d
 				}
 			}
-			img.Set(x, y, sc[sMin])
+			canvas.Rect(x, y, 1, 1, sc[sMin])
 		}
 	}
 
-	if err := png.Encode(os.Stdout, img); err != nil {
-		panic(err)
-	}
+	canvas.End()
 }
 
 func dot(x, y int) int {
