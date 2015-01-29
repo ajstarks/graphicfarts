@@ -13,14 +13,12 @@ func main() {
 	)
 
 	canvas, rect := graphicfarts.Setup("fill:white")
-
+	canvas.Gstyle("fill:none;stroke:black;stroke-width:3")
 	for y := rect.Min.Y; y < rect.Max.Y+*radius; y += *radius + *space {
 		for x := rect.Min.X; x < rect.Max.X+*radius; x += *radius + *space {
-			canvas.Gstyle("fill:none;stroke:black;stroke-width:3")
 			canvas.Circle(x, y, *radius)
-			canvas.Gend()
 		}
 	}
-
+	canvas.Gend()
 	canvas.End()
 }
